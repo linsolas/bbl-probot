@@ -7,8 +7,24 @@ export const TEST_ORGA = 'linsolas';
 export const TEST_REPO = 'bbl-probot';
 export const SPEAKER = 'linsolas';
 
-export const ISSUE_EVENT = {
+export const issueEvent = (title: string = 'BBL SG') => ({
   action: 'opened',
+  issue: {
+    number: 1,
+    user: {
+      login: SPEAKER
+    },
+    title
+  },
+  repository: {
+    name: TEST_REPO,
+    owner: {
+      login: TEST_ORGA
+    }
+  }
+});
+
+export const eventComment = (body: string = 'Lorem Ipsum') => ({
   issue: {
     number: 1,
     user: {
@@ -21,8 +37,16 @@ export const ISSUE_EVENT = {
     owner: {
       login: TEST_ORGA
     }
+  },
+  action: 'created',
+  comment: {
+    id: 1,
+    user: {
+      login: SPEAKER
+    },
+    body
   }
-};
+});
 
 const CONFIG = `
 speaker: ${SPEAKER}
@@ -60,3 +84,21 @@ export const expectCommentIsMade = (done: any, message: string) => {
     })
     .reply(200);
 };
+
+export const failIfCommentIsMade = (done: any) => {
+  const scope = nock(API)
+      .post(`/repos/${TEST_ORGA}/${TEST_REPO}/issues/1/comments`, () => {
+        done(fail());
+        return false;
+      })
+      .reply(200);
+  return scope;
+}
+
+export const expectNoAction = (done: any) => {
+  const scope = failIfCommentIsMade(done);
+  setTimeout(() => {
+    expect(scope.isDone()).toBeFalsy();
+    done();
+  }, 4000);
+}

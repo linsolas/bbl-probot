@@ -1,6 +1,9 @@
 import { Application } from 'probot';
-import { newISsue } from './new-issue';
+import { newIssue } from './new-issue';
+import { newComment } from './new-comment';
 
 export = (app: Application) => {
-  app.on('issues.opened', newISsue);
+  app.on('issues.opened', newIssue);
+
+  app.on('issue_comment.created', newComment);
 };
